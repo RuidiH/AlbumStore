@@ -33,3 +33,10 @@ server/logs/
 server/.env
 server/dist/
 server/build/
+
+# Client-specific files
+client/node_modules/
+client/logs/
+client/.env
+client/dist/
+client/build/

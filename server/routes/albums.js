@@ -13,6 +13,22 @@ router.get('/', async (req, res) => {
   }
 });
 
+// GET an album
+router.get('/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const { rows } = await pool.query(
+      'SELECT * FROM albums WHERE album_id = $1',[id]);
+    if (!rows[0]) {
+      return res.status(404).json({ error: 'Album not found' });
+    }
+    res.json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Something went wrong' });
+  }
+});
+
 // CREATE an album
 router.post('/', async (req, res) => {
   const { title, thumbnail_url = null } = req.body;
@@ -49,6 +65,48 @@ router.put('/:id', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Error updating album' });
+  }
+});
+
+// INCREMENT likes for an album
+router.post('/:id/like', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await pool.query(
+      `UPDATE albums
+       SET like_count = COALESCE(like_count, 0) + 1
+       WHERE album_id = $1
+       RETURNING *`,
+      [id]
+    );
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: 'Album not found' });
+    }
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error incrementing likes' });
+  }
+});
+
+// INCREMENT dislikes for an album
+router.post('/:id/dislike', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await pool.query(
+      `UPDATE albums
+       SET dislike_count = COALESCE(dislike_count, 0) + 1
+       WHERE album_id = $1
+       RETURNING *`,
+      [id]
+    );
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: 'Album not found' });
+    }
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error incrementing dislikes' });
   }
 });
 
