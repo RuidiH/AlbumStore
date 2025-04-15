@@ -1,16 +1,40 @@
 # album_store
 
+## Local Setup
 
-### Example API usage
+### Frontend
 
-## Health Check
+in ./client
+
+```
+npm start
+```
+
+### Backend
+
+in ./server
+
+```
+node index.js
+```
+
+### S3
+
+```
+docker run --rm -it -p 4566:4566 -p 4572:4572 localstack/localstack
+
+awslocal s3api create-bucket --bucket test-bucket --region us-west-2 --create-bucket-configuration LocationConstraint=us-west-2
+```
+
+## Example API usage
+
+### Health Check
 
 ```
 http://localhost:3001/test-db
 ```
 
-
-## Albums
+### Albums
 
 GET
 
@@ -19,6 +43,7 @@ curl -X GET http://localhost:3001/albums
 ```
 
 POST (thumnail optional)
+
 ```
 curl -X POST http://localhost:3001/albums \
   -H "Content-Type: application/json" \
@@ -26,6 +51,7 @@ curl -X POST http://localhost:3001/albums \
 ```
 
 PUT
+
 ```
 curl -X PUT http://localhost:3001/albums/1 \
   -H "Content-Type: application/json" \
@@ -33,6 +59,7 @@ curl -X PUT http://localhost:3001/albums/1 \
 ```
 
 DELETE
+
 ```
 curl -X DELETE http://localhost:3001/albums/1
 ```
@@ -40,6 +67,7 @@ curl -X DELETE http://localhost:3001/albums/1
 ### Tracks
 
 PUT
+
 ```
 curl -X POST http://localhost:3001/tracks/1 \
   -H "Content-Type: application/json" \
@@ -47,6 +75,7 @@ curl -X POST http://localhost:3001/tracks/1 \
 ```
 
 Delete
+
 ```
 curl -X DELETE http://localhost:3001/tracks/1/1
 ```

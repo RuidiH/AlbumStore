@@ -5,6 +5,7 @@ function AlbumDetails({ album, onClose, onUpdateAlbum }) {
   const [newTrack, setNewTrack] = useState('');
   const [likes, setLikes] = useState(album.like_count || 0);
   const [dislikes, setDislikes] = useState(album.dislike_count || 0);
+  const [thumbnailFile, setThumbnailFile] = useState(null);
 
   useEffect(() => {
     fetch(`http://localhost:3001/tracks/${album.album_id}`)
@@ -38,7 +39,7 @@ function AlbumDetails({ album, onClose, onUpdateAlbum }) {
       .then((response) => response.json())
       .then((data) => {
         setLikes(data.like_count);
-        onUpdateAlbum({ ...album, likes: data.like_count }); // Update parent state
+        onUpdateAlbum({ ...album, like_count: data.like_count });
       })
       .catch((err) => console.error(err));
   };
@@ -48,9 +49,52 @@ function AlbumDetails({ album, onClose, onUpdateAlbum }) {
       .then((response) => response.json())
       .then((data) => {
         setDislikes(data.dislike_count);
-        onUpdateAlbum({ ...album, dislikes: data.dislike_count}); // Update parent state
+        onUpdateAlbum({ ...album, dislike_count: data.dislike_count });
       })
       .catch((err) => console.error(err));
+  };
+
+  // Handle file selection for thumbnail upload
+  const handleThumbnailFileChange = (e) => {
+    setThumbnailFile(e.target.files[0]);
+  };
+
+  // Upload the selected file to S3 via our /upload endpoint,
+  // then update the album's thumbnail_url via the update album endpoint.
+  const handleUploadThumbnail = async () => {
+    if (!thumbnailFile) {
+      alert("Please select a file first.");
+      return;
+    }
+    const formData = new FormData();
+    formData.append("image", thumbnailFile);
+    
+    try {
+      // Upload file to S3 using the /upload endpoint
+      const uploadResponse = await fetch("http://localhost:3001/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const uploadData = await uploadResponse.json();
+
+      // Assume uploadData.data.Location holds the URL of the uploaded image.
+      const newThumbnailUrl = uploadData.data.Location;
+      
+      // Update the album's record (thumbnail_url) via the PUT endpoint
+      const updateResponse = await fetch(`http://localhost:3001/albums/${album.album_id}/thumbnail`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ thumbnail_url: newThumbnailUrl }),
+      });
+      const updatedAlbum = await updateResponse.json();
+
+      // Propagate the updated album to the parent state
+      onUpdateAlbum(updatedAlbum);
+      alert("Thumbnail updated successfully!");
+    } catch (err) {
+      console.error(err);
+      alert("Error updating thumbnail.");
+    }
   };
 
   return (
@@ -67,10 +111,20 @@ function AlbumDetails({ album, onClose, onUpdateAlbum }) {
       }}
     >
       <h2>{album.title}</h2>
+      <img
+        src={album.thumbnail_url || 'https://via.placeholder.com/150'}
+        alt={album.title}
+        style={{ width: '150px', height: '150px', objectFit: 'cover' }}
+      />
       <p>Likes: {likes}</p>
       <p>Dislikes: {dislikes}</p>
       <button onClick={handleLike}>Like</button>
       <button onClick={handleDislike}>Dislike</button>
+      
+      <h3>Update Thumbnail</h3>
+      <input type="file" onChange={handleThumbnailFileChange} />
+      <button onClick={handleUploadThumbnail}>Upload Thumbnail</button>
+
       <h3>Tracks</h3>
       <ul>
         {tracks.map((track) => (
