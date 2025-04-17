@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: album-app-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: album-app
+  template:
+    metadata:
+      labels:
+        app: album-app
+    spec:
+      containers:
+      - name: album-app-container
+        image: album-app:local
+        ports:
+        - containerPort: 3001
+        envFrom:                    # ← must be INSIDE the container
+        - configMapRef:
+            name: album-env

@@ -1,0 +1,33 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: init-s3-bucket
+spec:
+  backoffLimit: 3
+  template:
+    metadata:
+      labels:
+        job-name: init-s3-bucket
+    spec:
+      containers:
+      - name: awscli
+        image: amazon/aws-cli:2.15.0
+        # inherit ALL keys from album-env
+        envFrom:
+        - configMapRef:
+            name: album-env
+        command:
+        - sh
+        - -c
+        - |
+          until aws --endpoint-url=$AWS_S3_ENDPOINT \
+            s3api create-bucket \
+            --bucket $AWS_S3_BUCKET \
+            --region $AWS_REGION \
+            --create-bucket-configuration LocationConstraint=$AWS_REGION; do
+            echo "Waiting for LocalStack S3…"
+            sleep 2
+          done
+
+          echo "Bucket created!"
+      restartPolicy: OnFailure

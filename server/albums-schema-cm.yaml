@@ -1,0 +1,29 @@
+# albums-schema-cm.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: album-schema
+data:
+  01_create_tables.sql: |
+    -- albums
+    CREATE TABLE IF NOT EXISTS albums (
+      album_id     SERIAL PRIMARY KEY,
+      title        VARCHAR(255) NOT NULL,
+      thumbnail_url TEXT,
+      like_count    INT DEFAULT 0,
+      dislike_count INT DEFAULT 0,
+      created_at    TIMESTAMP DEFAULT NOW(),
+      updated_at    TIMESTAMP DEFAULT NOW()
+    );
+
+    -- tracks
+    CREATE TABLE IF NOT EXISTS tracks (
+      track_id   SERIAL PRIMARY KEY,
+      album_id   INT   NOT NULL,
+      youtube_link TEXT NOT NULL,
+      created_at TIMESTAMP DEFAULT NOW(),
+      updated_at TIMESTAMP DEFAULT NOW(),
+      CONSTRAINT fk_album
+        FOREIGN KEY (album_id) REFERENCES albums(album_id)
+        ON DELETE CASCADE
+    );

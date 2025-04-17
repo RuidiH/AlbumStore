@@ -1,0 +1,16 @@
+# album-env.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: album-env
+data:
+  DB_HOST: postgres            # service name in cluster
+  DB_PORT: "5432"
+  DB_NAME: album_app_dev
+  DB_USER: postgres
+  DB_PASSWORD: postgres        # move to Secret later
+  AWS_S3_ENDPOINT: http://localstack:4566
+  AWS_REGION: us-west-2
+  AWS_ACCESS_KEY_ID: test
+  AWS_SECRET_ACCESS_KEY: test
+  AWS_S3_BUCKET: my-albums-bucket
