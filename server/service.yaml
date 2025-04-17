@@ -4,10 +4,10 @@ kind: Service
 metadata:
   name: album-app-service
 spec:
-  type: NodePort
+  type: LoadBalancer
   selector:
     app: album-app
   ports:
     - port: 80
       targetPort: 3001
-      nodePort: 30080
+

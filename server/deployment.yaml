@@ -16,7 +16,14 @@ spec:
       - name: album-app-container
         image: album-app:local
         ports:
-        - containerPort: 3001
-        envFrom:                    # ← must be INSIDE the container
-        - configMapRef:
-            name: album-env
+          - containerPort: 3001
+        envFrom: # ← must be INSIDE the container
+          - configMapRef:
+              name: album-env
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"

@@ -14,3 +14,4 @@ data:
   AWS_ACCESS_KEY_ID: test
   AWS_SECRET_ACCESS_KEY: test
   AWS_S3_BUCKET: my-albums-bucket
+  AWS_S3_K8S: http://localhost:4566
