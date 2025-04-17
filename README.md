@@ -79,3 +79,54 @@ Delete
 ```
 curl -X DELETE http://localhost:3001/tracks/1/1
 ```
+
+
+## Minikube Related
+
+
+
+```
+minikube start
+````
+
+running the first time
+```
+eval $(minikube docker-env)
+
+docker build -t album-app:local .
+
+kubectl apply -f albums-schema-cm.yaml
+kubectl apply -f postgres.yaml
+kubectl apply -f localstack.yaml
+kubectl apply -f init-s3-bucket.yaml
+kubectl apply -f album-env.yaml
+kubectl apply -f deployment.yaml
+kubectl apply -f service.yaml
+```
+
+restart album app
+```
+kubectl rollout restart deployment album-app-deployment
+```
+
+check pod status
+```
+kubectl get pods
+```
+
+check service status
+```
+kubectl get svc
+```
+access app
+```
+minikube ip
+curl http://$(minikube ip):30080/
+```
+
+port-forwarding from minikube to 3001 in localhost:
+
+```
+kubectl port-forward svc/album-app-service 3001:80
+```
+
